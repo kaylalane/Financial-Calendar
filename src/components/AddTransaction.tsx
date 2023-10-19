@@ -10,7 +10,7 @@ import {
 } from "./ui/dialog"
 import { addNewTransaction } from "../features/transactions/TransactionsSlice"
 import { addDoc } from "@firebase/firestore"
-import { transactionsCollection } from "../lib/firebase"
+import { auth, transactionsCollection } from "../lib/firebase"
 
 const today = new Date().toLocaleDateString()
 
@@ -42,6 +42,7 @@ export default function AddTransaction() {
       transactionType: form.transactionType,
       newBalance: form.newBalance,
       transactionStatus: form.transactionStatus,
+      userId: auth.currentUser?.uid,
     })
   }
 

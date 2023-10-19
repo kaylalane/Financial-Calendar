@@ -9,28 +9,22 @@ import {
   TableRow,
 } from "./ui/table"
 import { useEffect, useState } from "react"
-import { getDocs, query, where } from "firebase/firestore"
-import { accountsCollection, auth } from "../lib/firebase"
+import { doc, getDoc, getDocs, query, where } from "firebase/firestore"
+import { accountsCollection, auth, db } from "../lib/firebase"
 
 export default function AllReoccuringCharges() {
   const [charges, setCharges] = useState<reoccurringChargesType[]>([])
 
-  const fetchCharges = () => {
+  const fetchCharges = async () => {
     //query for todos with user uids
-    const q = query(
-      accountsCollection,
-      where("userId", "==", auth.currentUser?.uid),
-    )
+    const docRef = doc(db, "customers", auth.currentUser?.uid || "")
+    const account = await getDoc(docRef)
 
     const temp: reoccurringChargesType[] = []
-    getDocs(q).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) =>
-        doc.data().reoccuringCharges.map((charge) => {
-          temp.push(charge)
-        }),
-      )
-      setCharges(temp)
+    account.data()?.reoccuringCharges.map((charge) => {
+      temp.push(charge)
     })
+    setCharges(temp)
   }
 
   useEffect(() => {
@@ -46,7 +40,7 @@ export default function AllReoccuringCharges() {
         </span>
       </div>
       <Table>
-        <TableCaption>A list of your recent invoices.</TableCaption>
+        <TableCaption>A list of your reoccuring.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Service</TableHead>

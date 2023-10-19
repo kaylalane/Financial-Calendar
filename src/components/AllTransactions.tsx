@@ -46,7 +46,7 @@ export default function AllTransactions() {
         <AddTransaction />
       </div>
       <Table>
-        <TableCaption>A list of your recent invoices.</TableCaption>
+        <TableCaption>A list of your recent transactions.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
@@ -59,7 +59,7 @@ export default function AllTransactions() {
           {transactions.map((transaction) => (
             <TableRow key={transaction.transactionNumber}>
               <TableCell>{transaction.transactionDate} </TableCell>
-              <TableCell>{transaction.transactionDescription} </TableCell>
+              <TableCell>{transaction.transactionParty} </TableCell>
               <TableCell>{transaction.transactionCategory}</TableCell>
               <TableCell className="text-right">
                 ${transaction.transactionAmount}{" "}
