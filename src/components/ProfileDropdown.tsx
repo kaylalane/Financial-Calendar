@@ -4,13 +4,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
 import { auth } from "../lib/firebase"
 import { useNavigate } from "react-router-dom"
-import { AvatarImage } from "@radix-ui/react-avatar"
 
 export default function ProfileDropdown() {
   const navigate = useNavigate()

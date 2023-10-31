@@ -7,10 +7,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "./ui/table"
-import { selectCustomer } from "../features/user/customerSlice"
-import { useAppSelector } from "../app/hooks"
-import { reoccurringChargesType } from "../global"
+} from "../../components/ui/table"
+import { selectCustomer } from "../user/customerSlice"
+import { useAppSelector } from "../../app/hooks"
+import { reoccurringChargesType } from "../../global"
 
 export default function AllReoccuringCharges() {
   const customer = useAppSelector(selectCustomer)

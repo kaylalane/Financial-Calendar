@@ -6,10 +6,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog"
-import { auth, db } from "../lib/firebase"
+} from "../../components/ui/dialog"
+import { auth, db } from "../../lib/firebase"
 import { useState } from "react"
-import { Button } from "./ui/button"
+import { Button } from "../../components/ui/button"
 
 const AddReoccuringTask = () => {
   const [charges, setCharges] = useState({
