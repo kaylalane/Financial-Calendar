@@ -1,15 +1,16 @@
+/* eslint-disable react/prop-types */
 import * as React from "react"
 import { DialogProps } from "@radix-ui/react-dialog"
 import { Command as CommandPrimitive } from "cmdk"
 import { Search } from "lucide-react"
 
-import { cn } from "/src/lib/utils"
-import { Dialog, DialogContent } from "/src/components/ui/dialog"
+import { cn } from "../../lib/utils"
+import { Dialog, DialogContent } from "./dialog"
 
 const Command = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive>,
+  React.ElementRef< typeof CommandPrimitive>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive>
->(({ className, ...props }, ref) => (
+>(({ className, ...props }: React.ComponentPropsWithoutRef<typeof CommandPrimitive.Separator>, ref) => (
   <CommandPrimitive
     ref={ref}
     className={cn(
@@ -21,7 +22,7 @@ const Command = React.forwardRef<
 ))
 Command.displayName = CommandPrimitive.displayName
 
-interface CommandDialogProps extends DialogProps {}
+type CommandDialogProps = DialogProps
 
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   return (

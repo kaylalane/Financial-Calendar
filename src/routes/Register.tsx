@@ -4,6 +4,7 @@ import { auth, db } from "../lib/firebase"
 import { Button } from "../components/ui/button"
 import { useNavigate } from "react-router-dom"
 import { addDoc, collection, doc, setDoc } from "firebase/firestore"
+import { TransactionType, reoccurringChargesType } from "../global"
 
 const Register = () => {
   const navigate = useNavigate()
@@ -29,7 +30,7 @@ const Register = () => {
         const newAccount = await addDoc(collection(db, "accounts"), {
           balance: 0,
           userId: user.uid,
-          reoccuringCharges: tempReoccuringCharges,
+          reoccuringCharges: mockReoccuringCharges,
         })
 
         // Create a customer document with the auth uid as the document id
@@ -38,6 +39,20 @@ const Register = () => {
           firstName: form.firstName,
           lastName: form.lastName,
           accounts: [newAccount.id],
+        })
+
+        // Add a fake transaction to the database
+        await addDoc(collection(db, "transactions"), {
+          transactionNumber: 1,
+          transactionDescription: "Mock transaction",
+          newBalance: 0,
+          transactionAmount: 17,
+          transactionCategory: "Food",
+          transactionDate: "2023-10-30",
+          transactionParty: "Target",
+          transactionStatus: "Pending",
+          transactionType: "Expense",
+          userId: auth.currentUser?.uid || "",
         })
 
         // navigate to dashboard
@@ -112,8 +127,23 @@ const Register = () => {
   )
 }
 
-const tempReoccuringCharges = [
+const mockReoccuringCharges: reoccurringChargesType[] = [
   { name: "Rent", amount: 500, dayOfMonth: 1 },
   { name: "Utilities", amount: 50, dayOfMonth: 15 },
+]
+
+const mockTransactions: TransactionType[] = [
+  {
+    transactionNumber: 1,
+    transactionDescription: "Mock transaction",
+    newBalance: 0,
+    transactionAmount: 17,
+    transactionCategory: "Food",
+    transactionDate: "2023-10-30",
+    transactionParty: "Target",
+    transactionStatus: "Pending",
+    transactionType: "Expense",
+    userId: auth.currentUser?.uid || "",
+  },
 ]
 export default Register

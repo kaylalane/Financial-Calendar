@@ -1,5 +1,4 @@
 import { FormEvent, useState } from "react"
-import { useAppDispatch } from "../app/hooks"
 import {
   Dialog,
   DialogContent,
@@ -8,27 +7,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog"
-import { addNewTransaction } from "../features/transactions/TransactionsSlice"
 import { addDoc } from "@firebase/firestore"
 import { auth, transactionsCollection } from "../lib/firebase"
+import { v4 as uuid } from "uuid"
+import { TransactionType } from "../global"
 
-const today = new Date().toLocaleDateString()
-
-const initialState = {
+const initialState: TransactionType = {
   transactionParty: "",
   transactionAmount: 0,
-  transactionNumber: 0,
+  transactionNumber: new Date().getTime(),
   transactionDate: "",
   transactionDescription: "",
-  transactionType: "Expense",
-  transactionCategory: "",
+  transactionType: "Income",
+  transactionCategory: "Income",
   newBalance: 0,
   transactionStatus: "Pending",
   userId: "",
 }
 
-export default function AddTransaction() {
-  const dispatch = useAppDispatch()
+export default function AddDeposit() {
   const [form, setForm] = useState<TransactionType>(initialState)
 
   const createNewTransaction = async (e: FormEvent) => {
@@ -48,12 +45,12 @@ export default function AddTransaction() {
 
   return (
     <Dialog>
-      <DialogTrigger>+</DialogTrigger>
+      <DialogTrigger>New Deposit</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New Transaction</DialogTitle>
+          <DialogTitle>New Deposit</DialogTitle>
           <DialogDescription>
-            Add a new transaction to your account.
+            Add a new deposit to your account.
           </DialogDescription>
         </DialogHeader>
         <form
@@ -61,18 +58,7 @@ export default function AddTransaction() {
           onSubmit={(e) => createNewTransaction(e)}
         >
           <label htmlFor="" className=" flex flex-col gap-2">
-            Category
-            <input
-              type="text"
-              className=" border-input border p-2 rounded-md text-black"
-              value={form.transactionCategory}
-              onChange={(e) =>
-                setForm({ ...form, transactionCategory: e.target.value })
-              }
-            />
-          </label>
-          <label htmlFor="" className=" flex flex-col gap-2">
-            Transaction Name
+            Deposit Name
             <input
               type="text"
               className=" border-input border p-2 rounded-md text-black"
@@ -83,7 +69,7 @@ export default function AddTransaction() {
             />
           </label>
           <label htmlFor="" className=" flex flex-col gap-2">
-            Transaction Description
+            Deposit Description
             <input
               type="text"
               className=" border-input border p-2 rounded-md text-black"

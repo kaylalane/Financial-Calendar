@@ -1,92 +1,151 @@
-import { configureStore, createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { RootState } from "../../app/store"
 import { DocumentData, addDoc } from "@firebase/firestore"
-import { db, transactionsCollection, auth } from "../../lib/firebase"
-import { collection, getDocs, query, where, setDoc } from "firebase/firestore"
-import { ac } from "vitest/dist/types-e3c9754d.js"
+import { transactionsCollection, auth } from "../../lib/firebase"
+import { getDocs, query, where } from "firebase/firestore"
+import { TransactionType } from "../../global"
+import { ac, s } from "vitest/dist/types-e3c9754d.js"
 
-const initialState = {
+type TransactionSliceType = {
+  transactions: TransactionType[]
+  lastMonthsIncome: number
+  lastWeeksIncome: number
+  lastWeeksTransactionsSum: number
+  lastMonthsTransactionsSum: number
+  status: "idle" | "loading" | "success" | "failed"
+}
+
+const initialState: TransactionSliceType = {
   transactions: [
     {
       transactionParty: "Home Depot",
       transactionAmount: 1000,
       transactionNumber: 900,
-      transactionDate: new Date(),
+      transactionDate: new Date().toLocaleDateString(),
       transactionCategory: "Home",
       transactionType: "Expense",
       newBalance: 900,
       transactionStatus: "Completed",
       transactionDescription: "Bought a new fridge",
-      user_id: "123",
+      userId: "123",
     },
   ],
-  status: "idle",
+  lastMonthsIncome: 0,
+  lastWeeksIncome: 0,
+  lastWeeksTransactionsSum: 0,
+  lastMonthsTransactionsSum: 0,
+  status: "loading",
 }
 
 export const getAllTransactionsAsync = createAsyncThunk(
-  "counter/getAllTransactions",
-  async () => {
+  "transactions/getAllTransactions",
+  async (): Promise<TransactionType[]> => {
     const q = query(
-      collection(db, "transactions"),
-      where("userId", "==", auth.currentUser?.uid),
+      transactionsCollection,
+      where("userId", "==", auth.currentUser?.uid || ""),
     )
 
-    getDocs(q).then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        addNewTransaction(doc.data())
-      })
-    })
-
-    // The value we return becomes the `fulfilled` action payload
+    const querySnapshot = await getDocs(q)
+    const data = querySnapshot.docs.map((doc) => ({
+      ...doc.data(),
+    })) as TransactionType[]
+    return data
   },
 )
 
-export const addNewTransactionAsync = createAsyncThunk<
-  DocumentData, // Return type of the async thunk
-  TransactionType, // Type of the payload
-  { state: RootState }
->("counter/createTransaction", async (action) => {
-  const newTransaction = await addDoc(transactionsCollection, {
-    transactionParty: action.transactionParty,
-    transactionAmount: action.transactionAmount,
-    transactionNumber: action.transactionNumber,
-    transactionDate: action.transactionDate,
-    transactionCategory: action.transactionCategory,
-    transactionType: action.transactionType,
-    newBalance: action.newBalance,
-    transactionStatus: action.transactionStatus,
-  })
+const calculateLastWeeksIncome = (transactions: TransactionType[]) => {
+  const lastWeeksIncome = transactions
+    .filter(
+      (transaction) =>
+        transaction.transactionType === "Income" &&
+        new Date(transaction.transactionDate) >=
+          new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000),
+    )
+    .reduce((acc, transaction) => acc + transaction.transactionAmount, 0)
 
-  // The value we return becomes the `fulfilled` action payload
-  return newTransaction
-})
+  return lastWeeksIncome
+}
+
+const calculateLastWeeksTransactionsSum = (transactions: TransactionType[]) => {
+  const lastWeeksTransactionsSum = transactions
+    .filter(
+      (transaction) =>
+        transaction.transactionType === "Income" &&
+        new Date(transaction.transactionDate) >=
+          new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000),
+    )
+    .reduce((acc, transaction) => acc + transaction.transactionAmount, 0)
+
+  return lastWeeksTransactionsSum
+}
+
+const calculateLastMonthsIncome = (transactions: TransactionType[]) => {
+  const lastMonthsIncome = transactions
+    .filter(
+      (transaction) =>
+        transaction.transactionType === "Income" &&
+        new Date(transaction.transactionDate) >=
+          new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000),
+    )
+    .reduce((acc, transaction) => acc + transaction.transactionAmount, 0)
+
+  return lastMonthsIncome
+}
+
+const calculateLastMonthsTransactionsSum = (
+  transactions: TransactionType[],
+) => {
+  const lastMonthsTransactionsSum = transactions
+    .filter(
+      (transaction) =>
+        transaction.transactionType === "Expense" &&
+        new Date(transaction.transactionDate) >=
+          new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000),
+    )
+    .reduce((acc, transaction) => acc + transaction.transactionAmount, 0)
+
+  return lastMonthsTransactionsSum
+}
 
 export const transactionsSlice = createSlice({
   name: "transactions",
   initialState: initialState,
   reducers: {
     addNewTransaction: (state, action) => {
+      console.log(action.payload)
       state.transactions.push(action.payload)
-      console.log("Transaction added")
+      //state.transactions = state.transactions.concat(action.payload)
+
+      //Update the last week and last months income and transactions sum
+      state.lastWeeksIncome = calculateLastWeeksIncome(state.transactions)
+      state.lastWeeksTransactionsSum = calculateLastWeeksTransactionsSum(
+        state.transactions,
+      )
+      state.lastMonthsIncome = calculateLastMonthsIncome(state.transactions)
+      state.lastMonthsTransactionsSum = calculateLastMonthsTransactionsSum(
+        state.transactions,
+      )
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(addNewTransactionAsync.pending, (state) => {
-        state.status = "loading"
-      })
-      .addCase(addNewTransactionAsync.fulfilled, (state, action) => {
-        state.status = "suceess"
-        state.transactions = state.transactions.concat(action.payload)
-      })
-      .addCase(addNewTransactionAsync.rejected, (state) => {})
+    builder.addCase(getAllTransactionsAsync.fulfilled, (state, action) => {
+      state.transactions = action.payload
+      state.lastWeeksIncome = calculateLastWeeksIncome(state.transactions)
+      state.lastWeeksTransactionsSum = calculateLastWeeksTransactionsSum(
+        state.transactions,
+      )
+      state.lastMonthsIncome = calculateLastMonthsIncome(state.transactions)
+      state.lastMonthsTransactionsSum = calculateLastMonthsTransactionsSum(
+        state.transactions,
+      )
+
+      state.status = "success"
+    })
   },
 })
 
 export const { addNewTransaction } = transactionsSlice.actions
 
-export const selectTransactions = (state: RootState) =>
-  state.transactions.transactions
+export const selectTransactions = (state: RootState) => state.transactions
 
 export default transactionsSlice.reducer

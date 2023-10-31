@@ -4,11 +4,12 @@ import { auth } from "../lib/firebase"
 
 export default function HomePage() {
   const location = useLocation()
-  if (auth.currentUser) {
+  /*  if (auth.currentUser) {
     return <Navigate to="/dashboard" state={{ from: location }} replace />
-  }
+  } */
   return (
     <div>
+      <div className="bg-gradient-to-r from-[#757ab8] to-[#7bb17d] h-72 rounded-lg m-4"></div>
       <h1>Welcome to our Financial Calendar!</h1>
       <p>Plan your finances with ease using our powerful financial calendar.</p>
       <ul>

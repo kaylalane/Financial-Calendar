@@ -1,12 +1,65 @@
 /** ALL REDUX TYPES */
-declare type AccountType = {
+
+export enum Status {
+  Idle = "Idle",
+  Sucess = "Success",
+  Loading = "Loading",
+  Failed = "Failed",
+}
+interface BaseEntity {
+  id: string | null
+}
+
+export class Account {
+  //Public variables
+  reoccuringCharges: reoccurringChargesType[] = []
+  reoccuringChargeSum: number
+  userId: number
+  balance: number
+
+  //Account constructor
+  constructor() {
+    //Initialize variables to 0 or empty
+    this.balance = 0
+    this.userId = 0
+    this.reoccuringChargeSum = 0
+
+    //Get account data from firebase and set variables to the data if found
+    const account = this.getAccount().then(
+      (doc) => (
+        (this.reoccuringCharges = doc?.reoccuringCharges),
+        (this.reoccuringChargeSum = doc?.reoccuringChargeSum),
+        (this.userId = doc?.userId),
+        (this.balance = doc?.balance)
+      ),
+    )
+  }
+
+  //Returns promise of account document from firebase
+  async getAccount(): Promise<DocumentData | null> {
+    const docRef = doc(db, "customers", auth.currentUser?.uid || "")
+    const account = await getDoc(docRef)
+    return account?.data() || null
+  }
+}
+
+declare interface AccountType {
   reoccuringCharges: reoccurringChargesType[]
   reoccuringChargeSum: number
   userId: number
   balance: number
 }
 
-declare type TransactionType = {
+declare interface CustomerType {
+  reoccuringCharges: reoccurringChargesType[]
+  reoccuringChargesSum: number
+  userId: number
+  balance: number
+  firstName: string
+  lastName: string
+}
+
+declare interface TransactionType {
   transactionParty: string
   transactionAmount: number
   transactionNumber: number
@@ -19,7 +72,7 @@ declare type TransactionType = {
   userId: string
 }
 
-declare type reoccurringChargesType = {
+declare interface reoccurringChargesType {
   dayOfMonth: number
   amount: number
   name: string

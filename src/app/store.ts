@@ -1,16 +1,11 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit"
-import counterReducer from "../features/counter/counterSlice"
-import userReducer from "../features/user/userSlice"
-import financialReducer from "../features/financialOverview/financialOverviewSlice"
-import reoccuringChargesReducer from "../features/reoccuringCharges/ReoccuringChargesSlice"
+import customerReducer from "../features/user/customerSlice"
 import transactionsReducer from "../features/transactions/TransactionsSlice"
-
+import budgetReducer from "../features/budget/budgetSlice"
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
-    financial: financialReducer,
-    user: userReducer,
-    reoccuringCharges: reoccuringChargesReducer,
+    budget: budgetReducer,
+    customer: customerReducer,
     transactions: transactionsReducer,
   },
 })

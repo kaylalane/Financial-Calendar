@@ -8,36 +8,21 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table"
-import { useEffect, useState } from "react"
-import { doc, getDoc, getDocs, query, where } from "firebase/firestore"
-import { accountsCollection, auth, db } from "../lib/firebase"
+import { selectCustomer } from "../features/user/customerSlice"
+import { useAppSelector } from "../app/hooks"
+import { reoccurringChargesType } from "../global"
 
 export default function AllReoccuringCharges() {
-  const [charges, setCharges] = useState<reoccurringChargesType[]>([])
-
-  const fetchCharges = async () => {
-    //query for todos with user uids
-    const docRef = doc(db, "customers", auth.currentUser?.uid || "")
-    const account = await getDoc(docRef)
-
-    const temp: reoccurringChargesType[] = []
-    account.data()?.reoccuringCharges.map((charge) => {
-      temp.push(charge)
-    })
-    setCharges(temp)
-  }
-
-  useEffect(() => {
-    fetchCharges()
-  }, [])
+  const customer = useAppSelector(selectCustomer)
 
   return (
-    <>
+    <div className=" my-4">
       <div className=" flex justify-between items-center">
         <span className=" flex gap-4">
           <h2 className=" text-xl font-semibold">Reoccuring charges</h2>
           <AddReoccuringTask />
         </span>
+        <p>${customer.reoccuringChargesSum}</p>
       </div>
       <Table>
         <TableCaption>A list of your reoccuring.</TableCaption>
@@ -49,7 +34,7 @@ export default function AllReoccuringCharges() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {charges.map((charge) => (
+          {customer.reoccuringCharges.map((charge: reoccurringChargesType) => (
             <TableRow key={charge.name}>
               <TableCell>{charge.name}</TableCell>
               <TableCell>${charge.amount}</TableCell>
@@ -62,6 +47,6 @@ export default function AllReoccuringCharges() {
       <table>
         <tbody></tbody>
       </table>
-    </>
+    </div>
   )
 }

@@ -10,6 +10,7 @@ import {
 } from "./ui/dropdown-menu"
 import { auth } from "../lib/firebase"
 import { useNavigate } from "react-router-dom"
+import { AvatarImage } from "@radix-ui/react-avatar"
 
 export default function ProfileDropdown() {
   const navigate = useNavigate()
@@ -18,16 +19,11 @@ export default function ProfileDropdown() {
       <DropdownMenuTrigger>
         <Avatar>
           <AvatarFallback>
-            {auth.currentUser?.displayName?.at(0)}
+            {auth.currentUser?.displayName?.charAt(0)}
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>{auth.currentUser?.displayName}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>Profile</DropdownMenuItem>
-        <DropdownMenuItem>Billing</DropdownMenuItem>
-        <DropdownMenuItem>Team</DropdownMenuItem>
         <DropdownMenuItem>
           <button
             onClick={() => {
